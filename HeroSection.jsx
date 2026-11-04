@@ -1,15 +1,16 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const TOTAL_FRAMES = 239;
 
 function getFramePath(index) {
   const frameNum = String(index + 1).padStart(4, '0');
-  return `/ezgif-8e1e996d95d816b7-jpg/frame-${frameNum}.jpg`;
+  return `/ezgif-8e1e996d95d816b7-jpg/frame-${frameNum}.png`;
 }
 
 export default function HeroSection() {
   const canvasRef = useRef(null);
   const trackRef = useRef(null);
+  const [scrollPercent, setScrollPercent] = useState(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -35,7 +36,7 @@ export default function HeroSection() {
       const sh = ih * scale;
       const sx = (cw - sw) / 2;
 
-      const verticalOffset = ch * 0.08;
+      const verticalOffset = ch * 0.13;
       const sy = (ch - sh) / 2 + verticalOffset;
 
       if (sy > 0) {
@@ -65,6 +66,7 @@ export default function HeroSection() {
       const maxScroll = track.offsetHeight - window.innerHeight;
       const scrollFraction = Math.max(0, Math.min(1, window.scrollY / maxScroll));
       targetFrame = scrollFraction * (TOTAL_FRAMES - 1);
+      setScrollPercent(Math.round(scrollFraction * 100));
     };
 
     const tick = () => {
@@ -92,15 +94,26 @@ export default function HeroSection() {
   return (
     <div
       ref={trackRef}
-      style={{ fontFamily: "'Barlow Condensed', Impact, sans-serif" }}
+      style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif" }}
       className="relative w-full h-[400vh] bg-[#DCDCDC] text-[#18181A] antialiased selection:bg-[#A81B22] selection:text-white"
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Montserrat:wght@900&display=swap');
-        .font-logo {
-          font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-          font-weight: 900;
-          letter-spacing: -0.02em;
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+        .font-brochure {
+          font-family: 'Barlow Condensed', Impact, sans-serif;
+          letter-spacing: 0.01em;
+        }
+        .outline-red {
+          color: transparent;
+          -webkit-text-stroke: 2.2px #A81B22;
+          letter-spacing: 0.02em;
+        }
+        .studio-ambient-vignette {
+          pointer-events-none;
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(ellipse 90% 70% at 50% 50%, transparent 45%, rgba(0, 0, 0, 0.12) 100%);
+          mix-blend-mode: multiply;
         }
       `}</style>
 
@@ -112,17 +125,20 @@ export default function HeroSection() {
           className="absolute inset-0 w-full h-full z-0 pointer-events-none"
         />
 
+        {/* Soft seamless studio ambient lighting */}
+        <div className="studio-ambient-vignette z-[4]" />
+
         {/* Top Navigation Bar */}
         <header className="relative z-20 w-full px-6 sm:px-12 lg:px-16 pt-6 flex items-center justify-between">
-          <a href="#" className="flex items-center group">
+          <a href="#" className="flex items-center">
             <img
               src="/images/cabsteel-logo.png"
               alt="CAB STEEL Metal Fabrication"
-              className="h-14 sm:h-16 w-auto object-contain transition-transform group-hover:scale-105"
+              className="h-14 sm:h-16 w-auto object-contain block"
             />
           </a>
 
-          <nav className="flex items-center gap-6 sm:gap-9 font-logo text-xs sm:text-[13px] uppercase text-[#18181A]">
+          <nav className="flex items-center gap-6 sm:gap-9 text-xs sm:text-[13px] font-extrabold uppercase tracking-wider text-[#18181A]">
             <a href="#" className="hidden md:inline-block hover:text-[#A81B22] transition-colors">
               HOME
             </a>
@@ -137,26 +153,30 @@ export default function HeroSection() {
             </a>
             <a
               href="tel:09184080396"
-              class="px-6 py-2.5 rounded-full bg-[#A81B22] text-white text-xs sm:text-[13px] font-black uppercase hover:bg-[#8c141a] shadow-sm transition-all"
+              className="px-6 py-2.5 rounded-full bg-[#A81B22] text-white text-xs sm:text-[13px] font-black uppercase hover:bg-[#8c141a] shadow-sm transition-all"
             >
               GET A QUOTE
             </a>
           </nav>
         </header>
 
-        {/* Headline Positioned with Logo Font Geometry */}
+        {/* Headline with Brochure Font + Hollow Red "THE BEST" */}
         <div className="relative z-10 w-full px-4 text-center mt-6 sm:mt-10 lg:mt-12 pointer-events-none select-none">
-          <h1 className="text-5xl sm:text-7xl lg:text-[88px] font-black uppercase tracking-tight leading-[0.94] text-[#18181A]">
-            YOUR ROOF DESERVES <span className="text-[#A81B22]">THE BEST</span>
+          <h1 className="font-brochure font-black text-6xl sm:text-8xl lg:text-[104px] uppercase tracking-tight leading-[0.92] text-[#18181A]">
+            YOUR ROOF DESERVES <span className="outline-red ml-1 sm:ml-2">THE BEST</span>
           </h1>
         </div>
 
         <div className="flex-1" />
 
-        {/* Bottom Center Scroll Indicator */}
-        <div className="relative z-20 pb-7 flex items-center justify-center gap-3 text-[#18181A]/80 text-sm sm:text-base font-extrabold uppercase tracking-[0.22em] select-none">
-          <span>SCROLL</span>
-          <span className="w-12 h-[2px] bg-[#A81B22] inline-block" />
+        {/* Bottom Center Dynamic Scroll Progress Bar */}
+        <div className="relative z-20 pb-8 flex items-center justify-center select-none">
+          <div className="w-36 sm:w-44 h-[3px] bg-black/15 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#A81B22] transition-all duration-75 rounded-full"
+              style={{ width: `${scrollPercent}%` }}
+            />
+          </div>
         </div>
       </section>
     </div>
