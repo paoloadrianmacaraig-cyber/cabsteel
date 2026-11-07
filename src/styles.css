@@ -1,0 +1,744 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Geist+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Official CAB STEEL Brochure Color System (Flat Surfaces Only) */
+  --cab-crimson: #9E1B22;
+  --cab-crimson-hover: #85151B;
+  --cab-crimson-deep: #85151B;
+  --cab-crimson-card: #701116;
+  --cab-crimson-tint: #F9EBEC;
+
+  --cab-studio: #DCDCDC;
+  --cab-paper: #F4F3F1;
+  --cab-surface: #FFFFFF;
+  --cab-surface-muted: #EAE8E4;
+
+  /* Approved B4 Dark Surfaces */
+  --cab-dark-950: #181818;
+  --cab-dark-900: #1F1F1F;
+  --cab-dark-800: #272727;
+  --cab-dark-700: #313131;
+
+  /* Text & Borders */
+  --cab-ink: #181818;
+  --cab-ink-secondary: #4A4A48;
+  --cab-ink-muted: #6E6E6A;
+  --cab-border: rgba(24, 24, 24, 0.1);
+  --cab-border-strong: rgba(24, 24, 24, 0.18);
+
+  /* B7 Weighted Motion Curve */
+  --ease-weighted: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: 'Manrope', system-ui, sans-serif;
+  color: var(--cab-ink);
+  background-color: var(--cab-paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-style: normal;
+  color: var(--cab-ink);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Functional Numeric Monospace (B1: strictly for data, gauges, prices, dimensions) */
+.font-mono-num {
+  font-family: 'Geist Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================================
+   BROCHURE-MATCHED DISPLAY TYPOGRAPHY, DUAL-METALLIC FINISH & TRANSITIONS
+   ========================================================================= */
+.font-hero-display {
+  font-family: 'Barlow Condensed', 'Manrope', system-ui, sans-serif;
+  text-transform: uppercase;
+}
+
+.hero-headline-offset {
+  padding-top: clamp(7.5rem, 14.5vh, 9.75rem);
+}
+
+.hero-bespoke-title {
+  font-size: 2.75rem;   /* 44px on mobile */
+  line-height: 0.95;
+  letter-spacing: 0.012em;
+}
+
+@media (min-width: 640px) {
+  .hero-bespoke-title {
+    font-size: 3.75rem; /* 60px on tablet */
+    line-height: 0.94;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-bespoke-title {
+    font-size: 5rem;    /* 80px on tall desktop */
+    line-height: 0.94;
+  }
+}
+
+@media (min-width: 1024px) and (max-height: 830px) {
+  .hero-bespoke-title {
+    font-size: 4.25rem; /* 68px on 125%-scaled laptop viewports — exact same vertical footprint */
+    line-height: 0.94;
+  }
+}
+
+.hero-outro-title {
+  font-size: 2.25rem;   /* 36px on mobile */
+  line-height: 0.96;
+  letter-spacing: 0.012em;
+}
+
+@media (min-width: 640px) {
+  .hero-outro-title {
+    font-size: 3.25rem; /* 52px on tablet */
+    line-height: 0.95;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-outro-title {
+    font-size: 4.5rem;  /* 72px on desktop — keeps 24-char line 1 on one crisp line */
+    line-height: 0.94;
+  }
+}
+
+@media (min-width: 1024px) and (max-height: 830px) {
+  .hero-outro-title {
+    font-size: 3.875rem;/* 62px on compact-height laptop viewports */
+    line-height: 0.94;
+  }
+}
+
+/* Line 1: Solid Brochure Charcoal with Subtle Forged Gunmetal Steel Sheen */
+.hero-steel-text {
+  font-weight: 800;
+  background: linear-gradient(180deg, #34373D 0%, #141518 52%, #23252A 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Line 2: Solid Brochure CAB Crimson with Clearcoat Metallic Sheen */
+.hero-crimson-sheen {
+  font-weight: 800;
+  background-image: linear-gradient(
+    112deg,
+    #6E0E14 0%,
+    #9E1B22 30%,
+    #DA343C 49%,
+    #9E1B22 68%,
+    #630C11 100%
+  );
+  background-size: 220% 100%;
+  background-position: 18% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 8px 20px rgba(158, 27, 34, 0.13));
+}
+
+@keyframes heroLineEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-line-enter-1 {
+  animation: heroLineEntrance 700ms var(--ease-weighted) both;
+}
+
+.hero-line-enter-2 {
+  animation: heroLineEntrance 750ms var(--ease-weighted) 90ms both;
+}
+
+.hero-stage-transition {
+  will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-line-enter-1,
+  .hero-line-enter-2 {
+    animation: none !important;
+  }
+  .hero-stage-transition {
+    transform: none !important;
+  }
+}
+
+/* =========================================================================
+   B1 NAMED TEXT STYLES — Exact Tailwind Default Scale + Paired Line Heights
+   Zero italics, zero 900 weights outside hero, orphan prevention built in
+   ========================================================================= */
+.heading-1 {
+  font-size: 3.75rem; /* 60px */
+  line-height: 1;     /* 60px */
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.heading-2 {
+  font-size: 3rem;    /* 48px */
+  line-height: 1;     /* 48px */
+  font-weight: 600;
+  letter-spacing: -0.022em;
+  text-wrap: balance;
+}
+
+.heading-3 {
+  font-size: 2.25rem; /* 36px */
+  line-height: 2.5rem;/* 40px */
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.heading-4 {
+  font-size: 1.875rem;/* 30px */
+  line-height: 2.25rem;/* 36px */
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.heading-5 {
+  font-size: 1.5rem;  /* 24px */
+  line-height: 2rem;  /* 32px */
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+}
+
+.heading-6 {
+  font-size: 1.25rem;   /* 20px */
+  line-height: 1.75rem; /* 28px */
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+/* Responsive Named Heading Promotions (Strictly snapping to B1 scale steps) */
+@media (min-width: 640px) {
+  .sm-heading-2 {
+    font-size: 3rem;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.022em;
+  }
+  .sm-heading-3 {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg-heading-1 {
+    font-size: 3.75rem;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+  .lg-heading-2 {
+    font-size: 3rem;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.022em;
+  }
+  .lg-heading-3 {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Titles */
+.title-1 {
+  font-size: 1.25rem;   /* 20px */
+  line-height: 1.75rem; /* 28px */
+  font-weight: 500;
+  text-wrap: balance;
+}
+
+.title-2 {
+  font-size: 1.125rem;  /* 18px */
+  line-height: 1.75rem; /* 28px */
+  font-weight: 500;
+  text-wrap: balance;
+}
+
+.title-3 {
+  font-size: 1rem;      /* 16px */
+  line-height: 1.5rem;  /* 24px */
+  font-weight: 500;
+}
+
+.title-4 {
+  font-size: 0.875rem;  /* 14px */
+  line-height: 1.25rem; /* 20px */
+  font-weight: 500;
+}
+
+.title-5 {
+  font-size: 0.75rem;   /* 12px */
+  line-height: 1rem;    /* 16px */
+  font-weight: 500;
+}
+
+/* Body */
+.body-1 {
+  font-size: 1rem;      /* 16px */
+  line-height: 1.5rem;  /* 24px */
+  font-weight: 600;
+  text-wrap: pretty;
+}
+
+.body-2 {
+  font-size: 1rem;      /* 16px */
+  line-height: 1.5rem;  /* 24px */
+  font-weight: 500;
+  text-wrap: pretty;
+}
+
+.body-3 {
+  font-size: 1rem;      /* 16px */
+  line-height: 1.5rem;  /* 24px */
+  font-weight: 400;
+  text-wrap: pretty;
+}
+
+.body-4 {
+  font-size: 0.875rem;  /* 14px */
+  line-height: 1.25rem; /* 20px */
+  font-weight: 600;
+  text-wrap: pretty;
+}
+
+.body-5 {
+  font-size: 0.875rem;  /* 14px */
+  line-height: 1.25rem; /* 20px */
+  font-weight: 500;
+  text-wrap: pretty;
+}
+
+.body-6 {
+  font-size: 0.875rem;  /* 14px */
+  line-height: 1.25rem; /* 20px */
+  font-weight: 400;
+  text-wrap: pretty;
+}
+
+/* Buttons */
+.button-lg {
+  font-size: 1.125rem;  /* 18px */
+  line-height: 1.75rem; /* 28px */
+  font-weight: 600;
+}
+
+.button-md {
+  font-size: 1rem;      /* 16px */
+  line-height: 1.5rem;  /* 24px */
+  font-weight: 600;
+}
+
+.button-sm {
+  font-size: 0.875rem;  /* 14px */
+  line-height: 1.25rem; /* 20px */
+  font-weight: 600;
+}
+
+.button-xsm {
+  font-size: 0.75rem;   /* 12px */
+  line-height: 1rem;    /* 16px */
+  font-weight: 600;
+}
+
+/* Captions */
+.caption-1 {
+  font-size: 0.875rem;  /* 14px */
+  line-height: 1.25rem; /* 20px */
+  font-weight: 500;
+  text-wrap: pretty;
+}
+
+.caption-2 {
+  font-size: 0.875rem;  /* 14px */
+  line-height: 1.25rem; /* 20px */
+  font-weight: 400;
+  text-wrap: pretty;
+}
+
+.caption-3 {
+  font-size: 0.75rem;   /* 12px */
+  line-height: 1rem;    /* 16px */
+  font-weight: 600;
+}
+
+.caption-4 {
+  font-size: 0.75rem;   /* 12px */
+  line-height: 1rem;    /* 16px */
+  font-weight: 500;
+}
+
+.caption-5 {
+  font-size: 0.75rem;   /* 12px */
+  line-height: 1rem;    /* 16px */
+  font-weight: 400;
+}
+
+/* B5 Light Theme Hero Gradient Text Utility (Strictly for non-brochure page headings like Quote page) */
+.hero-heading-gradient-light {
+  background: linear-gradient(90deg, #000000 0%, #666666 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* =========================================================================
+   B7 & B9 INTERACTIVE STATES, BUTTONS, NAVIGATION & MOTION
+   ========================================================================= */
+.skip-link {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 100;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: var(--cab-ink);
+  color: #FFFFFF;
+  transform: translateY(-160%);
+  transition: transform 300ms var(--ease-weighted);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+  outline: 2px solid var(--cab-crimson);
+  outline-offset: 2px;
+}
+
+/* Focus Ring Requirement (B9) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--cab-crimson);
+  outline-offset: 2px;
+}
+
+/* Weighted Interactive Button States */
+.btn-interactive {
+  transition:
+    transform 300ms var(--ease-weighted),
+    background-color 300ms var(--ease-weighted),
+    background-position 500ms var(--ease-weighted),
+    box-shadow 300ms var(--ease-weighted),
+    color 300ms var(--ease-weighted),
+    border-color 300ms var(--ease-weighted),
+    opacity 300ms var(--ease-weighted);
+}
+
+.btn-interactive:hover {
+  transform: translateY(-1px);
+}
+
+.btn-interactive:active {
+  transform: scale(0.98);
+}
+
+/* Subtle Toned-Down CAB Crimson Gradient CTA */
+.btn-crimson-gradient {
+  background-image: linear-gradient(90deg, #7E1319 0%, #991A20 55%, #AE2027 100%);
+  color: #FFFFFF;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 1px 3px rgba(24, 24, 24, 0.12);
+}
+
+.btn-crimson-gradient:hover {
+  background-image: linear-gradient(90deg, #6E1015 0%, #89161C 55%, #9C1B22 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 3px 8px rgba(24, 24, 24, 0.14);
+}
+
+/* Sculpted Squared Floating Translucent Navigation Bar */
+.nav-glass-dock {
+  background-color: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid rgba(24, 24, 24, 0.09);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 8px 24px -8px rgba(24, 24, 24, 0.08),
+    0 1px 3px rgba(24, 24, 24, 0.04);
+}
+
+.nav-pill-track {
+  position: relative;
+  background-color: rgba(24, 24, 24, 0.045);
+  border: 1px solid rgba(24, 24, 24, 0.045);
+}
+
+/* Smooth Gliding Active White Pill */
+.nav-sliding-indicator {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  z-index: 1;
+  border-radius: 6px;
+  background-color: #FFFFFF;
+  border: 1px solid rgba(24, 24, 24, 0.07);
+  box-shadow: 0 1px 3px rgba(24, 24, 24, 0.07);
+  pointer-events: none;
+  will-change: transform, width;
+  transition:
+    transform 460ms var(--ease-weighted),
+    width 460ms var(--ease-weighted),
+    opacity 250ms var(--ease-weighted);
+}
+
+.nav-sliding-indicator.no-transition {
+  transition: none !important;
+}
+
+/* Soft Hover Follower Pill */
+.nav-hover-indicator {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  z-index: 0;
+  border-radius: 6px;
+  background-color: rgba(24, 24, 24, 0.05);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, width, opacity;
+  transition:
+    transform 320ms var(--ease-weighted),
+    width 320ms var(--ease-weighted),
+    opacity 220ms var(--ease-weighted);
+}
+
+.nav-pill-link {
+  position: relative;
+  z-index: 2;
+  color: #52524E;
+  background-color: transparent;
+  transition: color 260ms var(--ease-weighted);
+}
+
+.nav-pill-link:hover {
+  color: #181818;
+}
+
+.nav-pill-link.is-active,
+.nav-pill-link[aria-current='page'] {
+  color: #181818;
+}
+
+/* Fallback static active pill only if JS has not initialized yet */
+.nav-pill-track:not(.has-glider) .nav-pill-link.is-active {
+  background-color: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(24, 24, 24, 0.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-interactive:hover,
+  .btn-interactive:active,
+  .btn-crimson-gradient:hover .cta-arrow {
+    transform: none;
+  }
+  .nav-sliding-indicator,
+  .nav-hover-indicator {
+    transition: opacity 200ms var(--ease-weighted) !important;
+  }
+}
+
+/* Animated Menu Toggle Bars (B7) */
+.menu-bar-top,
+.menu-bar-bottom {
+  transition: transform 500ms var(--ease-weighted), opacity 300ms var(--ease-weighted);
+  transform-origin: center;
+}
+
+[aria-expanded='true'] .menu-bar-top {
+  transform: translateY(4px) rotate(45deg);
+}
+
+[aria-expanded='true'] .menu-bar-bottom {
+  transform: translateY(-4px) rotate(-45deg);
+}
+
+/* Full-Height Mobile Drawer & Staggered Link Entrance (B7: 24px rise, 60ms step, <=400ms cap) */
+.mobile-drawer {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition:
+    opacity 300ms var(--ease-weighted),
+    transform 500ms var(--ease-weighted);
+}
+
+.mobile-drawer.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.mobile-nav-item {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 400ms var(--ease-weighted),
+    transform 500ms var(--ease-weighted);
+}
+
+.mobile-drawer.is-open .mobile-nav-item {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-drawer,
+  .mobile-nav-item {
+    transform: none !important;
+  }
+}
+
+/* B7 Section Scroll Reveal (32px Spacing-400 rise, 700ms on base curve, once) */
+.reveal-section {
+  opacity: 0;
+  transform: translateY(32px);
+  transition:
+    opacity 700ms var(--ease-weighted),
+    transform 700ms var(--ease-weighted);
+  will-change: opacity, transform;
+}
+
+.reveal-section.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-section {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* B11 Mandatory Word-by-Word Tagline Reveal */
+.tagline-word {
+  color: var(--cab-ink);
+  opacity: 0.26;
+  transition: opacity 300ms var(--ease-weighted), color 300ms var(--ease-weighted);
+}
+
+.tagline-word.is-active {
+  opacity: 1;
+}
+
+.tagline-word.is-crimson.is-active {
+  color: var(--cab-crimson);
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tagline-word {
+    opacity: 1 !important;
+  }
+  .tagline-word.is-crimson {
+    color: var(--cab-crimson) !important;
+  }
+}
+
+/* FAQ Accordion Smooth Transform/Opacity */
+.faq-chevron {
+  transition: transform 500ms var(--ease-weighted);
+}
+
+[aria-expanded='true'] .faq-chevron {
+  transform: rotate(180deg);
+}
+
+/* B9 Shaped Skeleton Shimmer (Opacity pulse only, flat surface, no background gradient) */
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.9; }
+}
+
+.skeleton-pulse {
+  animation: skeletonPulse 1.6s var(--ease-weighted) infinite;
+}
+
+/* Color Swatch Selection Ring */
+.color-swatch-btn {
+  transition: transform 300ms var(--ease-weighted), box-shadow 300ms var(--ease-weighted);
+}
+
+.color-swatch-btn[aria-checked='true'] {
+  transform: scale(1.08);
+  box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px var(--cab-ink);
+}
+
+.color-swatch-btn:active {
+  transform: scale(0.96);
+}
+
+/* Number Input Clean Styling */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+/* Print Stylesheet for Official CAB Steel Quote Sheet */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-card {
+    border: 1px solid #CCCCCC !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+}
+
