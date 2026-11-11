@@ -68,7 +68,7 @@ body {
    BROCHURE-MATCHED DISPLAY TYPOGRAPHY, DUAL-METALLIC FINISH & TRANSITIONS
    ========================================================================= */
 .font-hero-display {
-  font-family: 'Barlow Condensed', 'Manrope', system-ui, sans-serif;
+  font-family: 'Barlow Condensed', Impact, 'Manrope', system-ui, sans-serif;
   text-transform: uppercase;
 }
 
@@ -256,6 +256,12 @@ body {
     line-height: 2.5rem;
     font-weight: 600;
     letter-spacing: -0.02em;
+  }
+  .sm-heading-4 {
+    font-size: 1.875rem;
+    line-height: 2.35rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
   }
 }
 
@@ -651,33 +657,229 @@ textarea:focus-visible,
   transform: translateY(0);
 }
 
+.about-photo-pop {
+  opacity: 0;
+  transform: translateY(36px) scale(0.94);
+  transition:
+    opacity 750ms var(--ease-weighted) 120ms,
+    transform 750ms var(--ease-weighted) 120ms;
+  will-change: opacity, transform;
+}
+
+.reveal-section.is-visible .about-photo-pop {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Staggered Pop-Up & Hover-Only Crimson Spotlight for Three Pillars (Why Choose Us) */
+.why-pop-item {
+  opacity: 0;
+  transform: translateY(36px) scale(0.95);
+  transition:
+    opacity 700ms var(--ease-weighted),
+    transform 700ms var(--ease-weighted),
+    border-color 400ms var(--ease-weighted),
+    background-color 400ms var(--ease-weighted),
+    box-shadow 400ms var(--ease-weighted);
+  will-change: opacity, transform;
+}
+
+.why-stage-visible .why-pop-item {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Stagger entrance only while stage is entering */
+.why-stage-visible:not(.why-stage-settled) [data-why-card="0"] {
+  transition-delay: 80ms;
+}
+.why-stage-visible:not(.why-stage-settled) [data-why-card="1"] {
+  transition-delay: 200ms;
+}
+.why-stage-visible:not(.why-stage-settled) [data-why-card="2"] {
+  transition-delay: 320ms;
+}
+
+.why-pillar-card {
+  cursor: pointer;
+  transition:
+    background-color 300ms var(--ease-weighted),
+    border-color 300ms var(--ease-weighted),
+    transform 300ms var(--ease-weighted),
+    box-shadow 300ms var(--ease-weighted);
+}
+
+.why-pillar-num,
+.why-pillar-icon,
+.why-pillar-title,
+.why-pillar-desc,
+.why-pillar-line,
+.why-pillar-meta {
+  transition:
+    color 300ms var(--ease-weighted),
+    background-color 300ms var(--ease-weighted),
+    border-color 300ms var(--ease-weighted),
+    transform 300ms var(--ease-weighted);
+}
+
+/* When stage is settled or whenever a card is hovered: ZERO delay */
+.why-stage-settled .why-pillar-card,
+.why-stage-settled .why-pillar-card *,
+.why-pillar-card:hover,
+.why-pillar-card:hover * {
+  transition-delay: 0s !important;
+}
+
+.why-stage-visible .why-pillar-card:hover {
+  background-color: var(--cab-crimson);
+  border-color: var(--cab-crimson);
+  transform: translateY(-8px) scale(1.015);
+  box-shadow: 0 24px 48px -18px rgba(158, 27, 34, 0.35);
+}
+
+.why-stage-visible .why-pillar-card:hover .why-pillar-num {
+  color: #FFFFFF;
+}
+
+.why-stage-visible .why-pillar-card:hover .why-pillar-icon {
+  background-color: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+  transform: scale(1.06);
+}
+
+.why-stage-visible .why-pillar-card:hover .why-pillar-title {
+  color: #FFFFFF;
+}
+
+.why-stage-visible .why-pillar-card:hover .why-pillar-desc {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.why-stage-visible .why-pillar-card:hover .why-pillar-line {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.why-stage-visible .why-pillar-card:hover .why-pillar-meta {
+  color: #FFFFFF;
+}
+
+/* =========================================================================
+   SECTION 4: PRODUCT RANGE / ROOFING PROFILES ARRIVAL & SWITCHING ANIMATIONS
+   ========================================================================= */
+.profile-anim-item {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 700ms var(--ease-weighted),
+    transform 700ms var(--ease-weighted);
+  will-change: opacity, transform;
+}
+
+.profiles-stage-visible .profile-anim-item {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.profiles-stage-visible:not(.profiles-stage-settled) .profile-anim-header {
+  transition-delay: 40ms;
+}
+
+.profiles-stage-visible:not(.profiles-stage-settled) .profile-anim-slider {
+  transition-delay: 140ms;
+}
+
+.profiles-stage-visible:not(.profiles-stage-settled) .profile-anim-viewer {
+  transition-delay: 240ms;
+}
+
+.profiles-stage-visible:not(.profiles-stage-settled) .profile-anim-details {
+  transition-delay: 340ms;
+}
+
+.profiles-stage-settled .profile-anim-item {
+  transition-delay: 0s !important;
+}
+
+/* Text and Badge Switching Transition Keyframes */
+@keyframes profileTextSwap {
+  0% {
+    opacity: 0.25;
+    transform: translateY(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile-text-swap {
+  animation: profileTextSwap 280ms var(--ease-weighted) both;
+}
+
+@keyframes badgePulse {
+  0% {
+    transform: scale(0.96);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.badge-pop-anim {
+  animation: badgePulse 300ms var(--ease-weighted) both;
+}
+
+/* Viewport Surface Mode Crossfade */
+.viewer-mode-surface {
+  transition:
+    opacity 320ms var(--ease-weighted),
+    transform 320ms var(--ease-weighted);
+  will-change: opacity, transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .reveal-section {
+  .reveal-section,
+  .about-photo-pop,
+  .why-pop-item,
+  .profile-anim-item {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
   }
 }
 
-/* B11 Mandatory Word-by-Word Tagline Reveal */
+/* B11 Mandatory Word-by-Word Tagline Reveal & About Section Scroll Motion */
 .tagline-word {
+  display: inline-block;
   color: var(--cab-ink);
-  opacity: 0.26;
-  transition: opacity 300ms var(--ease-weighted), color 300ms var(--ease-weighted);
+  opacity: 0.18;
+  transform: translateY(8px);
+  transition:
+    opacity 360ms var(--ease-weighted),
+    transform 420ms var(--ease-weighted),
+    color 360ms var(--ease-weighted);
+  will-change: opacity, transform;
 }
 
 .tagline-word.is-active {
   opacity: 1;
+  transform: translateY(0);
 }
 
 .tagline-word.is-crimson.is-active {
   color: var(--cab-crimson);
   opacity: 1;
+  transform: translateY(0);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tagline-word {
     opacity: 1 !important;
+    transform: none !important;
   }
   .tagline-word.is-crimson {
     color: var(--cab-crimson) !important;

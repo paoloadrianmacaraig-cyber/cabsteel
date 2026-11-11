@@ -1,4 +1,6 @@
 import { createRoof3DViewer } from './roof3d.js';
+import longspanPhotoUrl from '../images/longspan-photo.jpg';
+import tilespanPhotoUrl from '../images/tilespan-photo.jpg';
 import {
   ROOF_PROFILES,
   ROOF_COLORS,
@@ -242,7 +244,7 @@ function initNavigation() {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (navLinks.length && pillTrack) {
-    const sectionIds = ['profiles', 'products', 'why-us', 'about', 'faq'];
+    const sectionIds = ['about', 'why-us', 'profiles', 'products', 'faq'];
     const sections = sectionIds
       .map((id) => document.getElementById(id))
       .filter(Boolean);
@@ -313,55 +315,51 @@ function initNavigation() {
       });
     }
 
-    // Cancel programmatic scroll immediately if user manually wheels or touches
-    function cancelProgrammaticScroll() {
-      if (scrollAnimRaf) {
-        cancelAnimationFrame(scrollAnimRaf);
-        scrollAnimRaf = null;
-      }
+    let scrollLockTimer = null;
+    let lastNavClickTime = 0;
+
+    function releaseLock() {
       lockedSectionId = null;
-    }
-    window.addEventListener('wheel', cancelProgrammaticScroll, { passive: true });
-    window.addEventListener('touchstart', cancelProgrammaticScroll, { passive: true });
-
-    // Weighted smooth scroll to section with header clearance & single-glide pill lock
-    function smoothScrollToY(targetY, targetId) {
-      cancelProgrammaticScroll();
-
-      if (prefersReducedMotion) {
-        window.scrollTo(0, targetY);
-        setActiveNav(targetId, true);
-        return;
+      if (scrollLockTimer) {
+        clearTimeout(scrollLockTimer);
+        scrollLockTimer = null;
       }
+    }
 
+    window.addEventListener('scrollend', releaseLock, { passive: true });
+    window.addEventListener(
+      'wheel',
+      () => {
+        if (Date.now() - lastNavClickTime > 350) {
+          releaseLock();
+        }
+      },
+      { passive: true }
+    );
+    window.addEventListener(
+      'touchstart',
+      () => {
+        if (Date.now() - lastNavClickTime > 350) {
+          releaseLock();
+        }
+      },
+      { passive: true }
+    );
+
+    // Instant native smooth scroll with header clearance & locked active indicator
+    function smoothScrollToY(targetY, targetId) {
+      lastNavClickTime = Date.now();
       lockedSectionId = targetId;
       setActiveNav(targetId, false);
       if (hoverIndicator) hoverIndicator.style.opacity = '0';
 
-      const startY = window.scrollY;
-      const delta = targetY - startY;
-      if (Math.abs(delta) < 2) {
-        lockedSectionId = null;
-        return;
-      }
+      window.scrollTo({
+        top: targetY,
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      });
 
-      const duration = Math.min(820, Math.max(460, Math.abs(delta) * 0.22));
-      const startTime = performance.now();
-
-      function step(now) {
-        const rawT = Math.min(1, (now - startTime) / duration);
-        const eased = 1 - Math.pow(1 - rawT, 3.6);
-        window.scrollTo(0, startY + delta * eased);
-
-        if (rawT < 1) {
-          scrollAnimRaf = requestAnimationFrame(step);
-        } else {
-          scrollAnimRaf = null;
-          lockedSectionId = null;
-        }
-      }
-
-      scrollAnimRaf = requestAnimationFrame(step);
+      clearTimeout(scrollLockTimer);
+      scrollLockTimer = setTimeout(releaseLock, 900);
     }
 
     navLinks.forEach((link) => {
@@ -468,7 +466,27 @@ function initNavigation() {
   });
 
   mobileLinks.forEach((link) => {
-    link.addEventListener('click', () => setMenuOpen(false));
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href');
+      setMenuOpen(false);
+      if (href && href.startsWith('#')) {
+        const targetId = href.slice(1);
+        if (targetId === 'top') {
+          e.preventDefault();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          history.replaceState(null, '', '#top');
+          return;
+        }
+        const sec = document.getElementById(targetId);
+        if (sec) {
+          e.preventDefault();
+          const headerOffset = 80;
+          const destY = Math.max(0, sec.getBoundingClientRect().top + window.scrollY - headerOffset);
+          window.scrollTo({ top: destY, behavior: 'smooth' });
+          history.replaceState(null, '', `#${targetId}`);
+        }
+      }
+    });
   });
 
   window.addEventListener('keydown', (e) => {
@@ -511,6 +529,7 @@ function initSectionReveals() {
 // ============================================================================
 function initTaglineReveal() {
   const container = document.getElementById('taglineRevealText');
+  const eyebrow = document.getElementById('aboutEyebrow');
   if (!container) return;
 
   const words = Array.from(container.querySelectorAll('.tagline-word'));
@@ -528,15 +547,43 @@ function initTaglineReveal() {
     const rect = container.getBoundingClientRect();
     const vh = window.innerHeight || document.documentElement.clientHeight;
 
-    // Start activating when top enters lower 82% of viewport, finish when section reaches upper 32%
-    const startY = vh * 0.84;
-    const endY = vh * 0.28;
+    // 1. Eyebrow slide-in as section enters viewport
+    if (eyebrow) {
+      const eyeIn = Math.max(0, Math.min(1, (vh * 0.92 - rect.top) / (vh * 0.22)));
+      eyebrow.style.opacity = eyeIn.toFixed(3);
+      eyebrow.style.transform = `translateY(${(14 * (1 - eyeIn)).toFixed(1)}px)`;
+    }
+
+    // 2. Word-by-word upward lift + illumination across both paragraphs
+    const startY = vh * 0.88;
+    const endY = vh * 0.38;
     const progress = Math.max(0, Math.min(1, (startY - rect.top) / (startY - endY)));
 
-    const activeCount = Math.floor(progress * words.length);
+    const activeCount = Math.ceil(progress * words.length);
     for (let i = 0; i < words.length; i++) {
       words[i].classList.toggle('is-active', i < activeCount);
     }
+  }
+
+  // 3. Why Choose Us Staggered Pop-Up Entrance (Hover-Only Spotlight via CSS)
+  const whyStage = document.getElementById('whyUsStage');
+
+  if (whyStage) {
+    const whyObserver = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            whyStage.classList.add('why-stage-visible');
+            obs.unobserve(entry.target);
+            setTimeout(() => {
+              whyStage.classList.add('why-stage-settled');
+            }, 800);
+          }
+        });
+      },
+      { threshold: 0.14 }
+    );
+    whyObserver.observe(whyStage);
   }
 
   window.addEventListener(
@@ -544,13 +591,17 @@ function initTaglineReveal() {
     () => {
       if (!ticking) {
         ticking = true;
-        requestAnimationFrame(updateWords);
+        requestAnimationFrame(() => {
+          updateWords();
+        });
       }
     },
     { passive: true }
   );
 
-  window.addEventListener('resize', updateWords);
+  window.addEventListener('resize', () => {
+    updateWords();
+  });
   updateWords();
 }
 
@@ -577,6 +628,7 @@ function initRoofStudio3D() {
   const presetBtns = document.querySelectorAll('[data-cam-preset]');
   const zoomInBtn = document.getElementById('studioZoomIn');
   const zoomOutBtn = document.getElementById('studioZoomOut');
+  const zoomControlsEl = document.getElementById('studioZoomControls');
   const autoRotateBtn = document.getElementById('studioAutoRotate');
 
   let viewer = null;
@@ -584,7 +636,7 @@ function initRoofStudio3D() {
     viewer = createRoof3DViewer(stageEl, {
       profile: activeProfileId,
       colorId: activeColorId,
-      autoRotate: true,
+      autoRotate: false,
     });
     if (skeletonEl) {
       skeletonEl.classList.add('hidden');
@@ -617,17 +669,239 @@ function initRoofStudio3D() {
     ).join('');
   }
 
-  function syncStudioUI() {
+  let activeViewMode = '3d';
+  const viewPhotoBtn = document.getElementById('viewModePhotoBtn');
+  const view3DBtn = document.getElementById('viewMode3DBtn');
+  const photoContainer = document.getElementById('roofPhotoMode');
+  const photoImg = document.getElementById('roofPhotoImg');
+  const pricePillEl = document.getElementById('studioPricePill');
+
+  function setViewMode(mode) {
+    activeViewMode = mode;
+    // Reset 3D model camera position every time we switch between Sheet Photo and 3D View
+    if (viewer && typeof viewer.resetView === 'function') {
+      viewer.resetView(true);
+    }
+
+    if (activeViewMode === 'photo') {
+      if (photoContainer) {
+        photoContainer.style.opacity = '1';
+        photoContainer.style.pointerEvents = 'auto';
+        photoContainer.style.transform = 'scale(1)';
+      }
+      if (stageEl) {
+        stageEl.style.opacity = '0';
+        stageEl.style.pointerEvents = 'none';
+        stageEl.style.transform = 'scale(0.98)';
+      }
+      if (zoomControlsEl) {
+        zoomControlsEl.classList.add('opacity-0', 'pointer-events-none');
+      }
+      if (viewPhotoBtn) {
+        viewPhotoBtn.setAttribute('aria-pressed', 'true');
+        viewPhotoBtn.className =
+          'btn-interactive w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold bg-white text-[#181818] shadow-sm cursor-pointer transition-all duration-150 flex items-center justify-center gap-2';
+      }
+      if (view3DBtn) {
+        view3DBtn.setAttribute('aria-pressed', 'false');
+        view3DBtn.className =
+          'btn-interactive w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold text-[#6E6E6A] hover:text-[#181818] cursor-pointer transition-all duration-150 flex items-center justify-center gap-2';
+      }
+    } else {
+      if (photoContainer) {
+        photoContainer.style.opacity = '0';
+        photoContainer.style.pointerEvents = 'none';
+        photoContainer.style.transform = 'scale(1.02)';
+      }
+      if (stageEl) {
+        stageEl.style.opacity = '1';
+        stageEl.style.pointerEvents = 'auto';
+        stageEl.style.transform = 'scale(1)';
+      }
+      if (zoomControlsEl) {
+        zoomControlsEl.classList.remove('opacity-0', 'pointer-events-none');
+      }
+      if (view3DBtn) {
+        view3DBtn.setAttribute('aria-pressed', 'true');
+        view3DBtn.className =
+          'btn-interactive w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold bg-white text-[#181818] shadow-sm cursor-pointer transition-all duration-150 flex items-center justify-center gap-2';
+      }
+      if (viewPhotoBtn) {
+        viewPhotoBtn.setAttribute('aria-pressed', 'false');
+        viewPhotoBtn.className =
+          'btn-interactive w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold text-[#6E6E6A] hover:text-[#181818] cursor-pointer transition-all duration-150 flex items-center justify-center gap-2';
+      }
+    }
+  }
+
+  if (viewPhotoBtn) viewPhotoBtn.addEventListener('click', () => setViewMode('photo'));
+  if (view3DBtn) view3DBtn.addEventListener('click', () => setViewMode('3d'));
+
+  // Dynamic luminance & specular-preserving Sheet Photo recoloring cache
+  const basePhotoDataCache = new Map();
+  const recoloredPhotoUrlCache = new Map();
+
+  function loadBasePhotoData(profileId) {
+    if (basePhotoDataCache.has(profileId)) {
+      return Promise.resolve(basePhotoDataCache.get(profileId));
+    }
+    const src = profileId === 'tilespan' ? tilespanPhotoUrl : longspanPhotoUrl;
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth || img.width;
+        canvas.height = img.naturalHeight || img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const entry = { width: canvas.width, height: canvas.height, data: imgData.data };
+        basePhotoDataCache.set(profileId, entry);
+        resolve(entry);
+      };
+      img.onerror = () => resolve(null);
+      img.src = src;
+    });
+  }
+
+  function getRecoloredSheetPhoto(profileId, colorObj) {
+    const baseSrc = profileId === 'tilespan' ? tilespanPhotoUrl : longspanPhotoUrl;
+    if (!colorObj || colorObj.id === 'red') {
+      return Promise.resolve(baseSrc);
+    }
+    const cacheKey = `${profileId}_${colorObj.id}`;
+    if (recoloredPhotoUrlCache.has(cacheKey)) {
+      return Promise.resolve(recoloredPhotoUrlCache.get(cacheKey));
+    }
+
+    return loadBasePhotoData(profileId).then((base) => {
+      if (!base) return baseSrc;
+      const { width, height, data } = base;
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      const outImg = ctx.createImageData(width, height);
+      const out = outImg.data;
+
+      const hexNum = colorObj.threeHex;
+      const tR = (hexNum >> 16) & 255;
+      const tG = (hexNum >> 8) & 255;
+      const tB = hexNum & 255;
+
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const a = data[i + 3];
+
+        if (r > 248 && g > 248 && b > 248) {
+          out[i] = r;
+          out[i + 1] = g;
+          out[i + 2] = b;
+          out[i + 3] = a;
+          continue;
+        }
+
+        // Clean unmixing:
+        // In the original red photograph:
+        // - True specular highlights occur when (g + b) * 0.5 rises above the dark ambient floor (~38)
+        // - Pigment shading across the ribs and pans is carried cleanly by r
+        const neutralGB = (g + b) * 0.5;
+        const specular = Math.max(0, neutralGB - 38);
+        const specNorm = Math.pow(specular / 217, 1.25) * 225;
+
+        // Diffuse luminance drive
+        const chromaRed = Math.max(0, r - neutralGB * 0.6);
+        const drive = chromaRed / 112;
+
+        // Smoothly blend anti-aliased edge to pure background white
+        const minChan = Math.min(r, Math.min(g, b));
+        const bgBlend = minChan > 235 ? Math.min(1, (minChan - 235) / 15) : 0;
+
+        const redVal = Math.min(255, Math.max(0, drive * tR + specNorm));
+        const greenVal = Math.min(255, Math.max(0, drive * tG + specNorm));
+        const blueVal = Math.min(255, Math.max(0, drive * tB + specNorm));
+
+        out[i] = Math.round(redVal * (1 - bgBlend) + 255 * bgBlend);
+        out[i + 1] = Math.round(greenVal * (1 - bgBlend) + 255 * bgBlend);
+        out[i + 2] = Math.round(blueVal * (1 - bgBlend) + 255 * bgBlend);
+        out[i + 3] = a;
+      }
+
+      ctx.putImageData(outImg, 0, 0);
+      const url = canvas.toDataURL('image/png');
+      recoloredPhotoUrlCache.set(cacheKey, url);
+      return url;
+    });
+  }
+
+  // Pre-cache all sheet photos in the background so color & mode switching is instantaneous
+  ['longspan', 'tilespan'].forEach((prof) => {
+    ROOF_COLORS.forEach((col) => {
+      getRecoloredSheetPhoto(prof, col);
+    });
+  });
+
+  function syncStudioUI(triggerAnimation = false) {
     const profile = getProfileById(activeProfileId);
     const color = getColorById(activeColorId);
 
-    if (profileTitleEl) profileTitleEl.textContent = profile.name;
-    if (profileSummaryEl) profileSummaryEl.textContent = profile.summary;
-    if (activeBadgeEl) {
-      activeBadgeEl.textContent = `${profile.shortName} · ${color.name}`;
+    const badgeColorDot = document.getElementById('studioBadgeColorDot');
+    const badgeProfileText = document.getElementById('studioActiveProfileText');
+    const badgeColorText = document.getElementById('studioActiveColorText');
+
+    if (badgeColorDot) badgeColorDot.style.backgroundColor = color.hex;
+    if (badgeProfileText) badgeProfileText.textContent = profile.name;
+    if (badgeColorText) badgeColorText.textContent = color.name;
+
+    if (profileTitleEl) {
+      profileTitleEl.textContent = profile.name;
+      if (triggerAnimation) {
+        profileTitleEl.classList.remove('profile-text-swap');
+        void profileTitleEl.offsetWidth;
+        profileTitleEl.classList.add('profile-text-swap');
+      }
+    }
+    if (profileSummaryEl) {
+      profileSummaryEl.textContent = profile.summary;
+      if (triggerAnimation) {
+        profileSummaryEl.classList.remove('profile-text-swap');
+        void profileSummaryEl.offsetWidth;
+        profileSummaryEl.classList.add('profile-text-swap');
+      }
+    }
+    if (activeBadgeEl && triggerAnimation) {
+      activeBadgeEl.classList.remove('badge-pop-anim');
+      void activeBadgeEl.offsetWidth;
+      activeBadgeEl.classList.add('badge-pop-anim');
     }
     if (colorNameEl) colorNameEl.textContent = color.name;
     if (colorHexEl) colorHexEl.textContent = color.hex;
+
+    if (photoImg) {
+      const reqProfile = activeProfileId;
+      const reqColor = color.id;
+      photoImg.alt =
+        activeProfileId === 'tilespan'
+          ? `CAB Steel Tile Span metal roofing sheet photo in ${color.name}`
+          : `CAB Steel Long Span 8 Ribs metal roofing sheet photo in ${color.name}`;
+
+      getRecoloredSheetPhoto(activeProfileId, color).then((resolvedUrl) => {
+        if (activeProfileId !== reqProfile || activeColorId !== reqColor) return;
+        photoImg.src = resolvedUrl;
+        if (triggerAnimation) {
+          photoImg.classList.remove('profile-text-swap');
+          void photoImg.offsetWidth;
+          photoImg.classList.add('profile-text-swap');
+        }
+      });
+    }
+
+    if (pricePillEl) {
+      pricePillEl.textContent = activeProfileId === 'tilespan' ? '₱340 to ₱525 / m' : '₱270 to ₱455 / m';
+    }
 
     if (specsListEl) {
       specsListEl.innerHTML = profile.specs
@@ -648,10 +922,10 @@ function initRoofStudio3D() {
       btn.setAttribute('aria-pressed', String(isSelected));
       if (isSelected) {
         btn.className =
-          'btn-interactive py-2 px-3 rounded-lg bg-[#9E1B22] text-white button-sm text-center cursor-pointer';
+          'roof-profile-tab py-2.5 px-4 rounded-xl text-center text-sm sm:text-[0.9375rem] font-semibold tracking-normal transition-all duration-200 bg-white text-[#181818] shadow-sm cursor-pointer';
       } else {
         btn.className =
-          'btn-interactive py-2 px-3 rounded-lg bg-transparent text-[#4A4A48] hover:text-[#181818] button-sm text-center cursor-pointer';
+          'roof-profile-tab py-2.5 px-4 rounded-xl text-center text-sm sm:text-[0.9375rem] font-medium tracking-normal transition-all duration-200 bg-transparent text-[#6E6E6A] hover:text-[#181818] cursor-pointer';
       }
     });
 
@@ -672,8 +946,13 @@ function initRoofStudio3D() {
       const nextProfile = btn.getAttribute('data-profile-select');
       if (!nextProfile || nextProfile === activeProfileId) return;
       activeProfileId = nextProfile;
-      if (viewer) viewer.setProfile(activeProfileId);
-      syncStudioUI();
+      if (viewer) {
+        viewer.setProfile(activeProfileId);
+        if (activeViewMode === '3d') {
+          viewer.resetView();
+        }
+      }
+      syncStudioUI(true);
     });
   });
 
@@ -685,24 +964,51 @@ function initRoofStudio3D() {
       if (!nextColor) return;
       activeColorId = nextColor;
       if (viewer) viewer.setColor(activeColorId);
-      syncStudioUI();
+      syncStudioUI(true);
     });
   }
 
-  presetBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const preset = btn.getAttribute('data-cam-preset');
-      if (viewer && preset) {
-        viewer.setPresetView(preset);
-      }
-      presetBtns.forEach((b) => {
-        const active = b === btn;
-        b.className = active
-          ? 'btn-interactive py-1 px-2 rounded-md bg-[#181818] text-white caption-3 cursor-pointer'
-          : 'btn-interactive py-1 px-2 rounded-md bg-white text-[#4A4A48] hover:text-[#181818] border border-black/10 caption-3 cursor-pointer';
+  // Section 4 Arrival Scroll-Triggered Stagger Animation
+  const profilesStage = document.getElementById('profilesStage');
+  if (profilesStage) {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      profilesStage.classList.add('profiles-stage-visible', 'profiles-stage-settled');
+    } else {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              profilesStage.classList.add('profiles-stage-visible');
+              setTimeout(() => {
+                profilesStage.classList.add('profiles-stage-settled');
+              }, 850);
+              observer.disconnect();
+            }
+          });
+        },
+        { threshold: 0.15 }
+      );
+      observer.observe(profilesStage);
+    }
+  }
+
+  if (presetBtns.length) {
+    presetBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const preset = btn.getAttribute('data-cam-preset');
+        if (viewer && preset) {
+          viewer.setPresetView(preset);
+        }
+        presetBtns.forEach((b) => {
+          const active = b === btn;
+          b.className = active
+            ? 'btn-interactive py-1 px-2 rounded-md bg-[#181818] text-white caption-3 cursor-pointer'
+            : 'btn-interactive py-1 px-2 rounded-md bg-white text-[#4A4A48] hover:text-[#181818] border border-black/10 caption-3 cursor-pointer';
+        });
       });
     });
-  });
+  }
 
   if (zoomInBtn && viewer) {
     zoomInBtn.addEventListener('click', () => viewer.zoomIn());
@@ -754,7 +1060,7 @@ function initLegalModal() {
     privacy: {
       title: 'Privacy policy',
       body: `
-        <p class="body-3 text-[#4A4A48]">CAB Steel Metal Fabrication collects only the contact and roofing specification details you voluntarily enter when preparing a roofing quote or contacting our Taal, Batangas plant.</p>
+        <p class="body-3 text-[#4A4A48]">CAB Steel Metal Fabrication collects only the contact and roofing specification details you voluntarily enter when preparing a roofing quote or contacting our Taal, Batangas warehouse.</p>
         <p class="body-3 text-[#4A4A48] mt-4">Your name, phone number, project location, and sheet cut list are used solely to confirm coil stock availability, compute custom sheet fabrication pricing, and coordinate pickup or delivery from Brgy Halang, Bypass Rd. Taal, Batangas.</p>
         <p class="body-3 text-[#4A4A48] mt-4">We never sell or rent customer contact records to third parties. To update or remove an inquiry record, call or message us directly at 0918 408 0396.</p>
       `,
@@ -763,7 +1069,7 @@ function initLegalModal() {
       title: 'Terms of quotation and fabrication',
       body: `
         <p class="body-3 text-[#4A4A48]">Online quote estimates reflect CAB Steel Metal Fabrication brochure rates per linear meter: Premium (₱455 Long Span / ₱525 Tile Span), Original (₱370 Long Span / ₱440 Tile Span), and Economy (₱270 Long Span / ₱340 Tile Span).</p>
-        <p class="body-3 text-[#4A4A48] mt-4">Because every order is roll formed and cut to your custom sheet lengths in house, final production begins upon order confirmation with our Batangas plant team. Bulk order and repeat contractor discounts are confirmed prior to fabrication.</p>
+        <p class="body-3 text-[#4A4A48] mt-4">Because every order is roll formed and cut to your custom sheet lengths in house, final production begins upon order confirmation with our Batangas warehouse team. Bulk order and repeat contractor discounts are confirmed prior to fabrication.</p>
         <p class="body-3 text-[#4A4A48] mt-4">Site delivery within 3 km of CAB Steel in Brgy Halang, Taal, Batangas is free of charge. Delivery distances exceeding 3 km are billed at ₱150 per excess kilometer based on verified road distance.</p>
       `,
     },

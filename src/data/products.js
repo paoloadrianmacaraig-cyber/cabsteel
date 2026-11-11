@@ -66,14 +66,14 @@ export const ROOF_PROFILES = [
   {
     id: 'longspan',
     name: 'Long Span Roofing (8 Ribs)',
-    shortName: 'Long Span (8 Ribs)',
+    shortName: 'Long Span Roofing (8 Ribs)',
     summary:
-      'Lightweight, high strength metal roofing panel designed for wide coverage and fast installation. Built for structures that require durable, low maintenance protection.',
+      'Long Span roofing is a lightweight, high strength metal roofing panel designed for wide coverage and fast installation. Ideal for structures that require durable, low maintenance protection.',
     specs: [
-      { label: 'Rib geometry', value: '8 trapezoidal major ribs with valley stiffening flutes' },
-      { label: 'Thickness options', value: '0.5 mm (Premium & Original) · 0.4 mm (Economy)' },
-      { label: 'Cutting', value: 'Custom length fabrication to match your roof slope' },
-      { label: 'Price range', value: '₱270 to ₱455 per linear meter' },
+      { label: 'Thickness', value: '0.5 mm (Premium & Original) · 0.4 mm (Economy)' },
+      { label: 'Cutting', value: 'Custom length fabrication' },
+      { label: 'Colors available', value: 'Crimson Red, Forest Green, Terra Brown, Slate Gray, Royal Blue' },
+      { label: 'Price per meter', value: '₱455 (Premium) · ₱370 (Original) · ₱270 (Economy)' },
     ],
   },
   {
@@ -81,12 +81,12 @@ export const ROOF_PROFILES = [
     name: 'Tile Span Roofing',
     shortName: 'Tile Span',
     summary:
-      'Mimics the classic look of traditional clay tiles with the strength, lightness, and weather resistance of roll formed steel. Delivers an architectural appearance without heavy roof loads.',
+      'Tile Span roofing mimics the elegant look of traditional clay tiles with the strength, lightness, and durability of metal roofing. It offers a premium appearance without the weight and cost of real tile.',
     specs: [
-      { label: 'Tile geometry', value: 'Scalloped barrel waves with stamped horizontal tile steps' },
-      { label: 'Thickness options', value: '0.5 mm (Premium & Original) · 0.4 mm (Economy)' },
-      { label: 'Cutting', value: 'Custom length fabrication to match your roof slope' },
-      { label: 'Price range', value: '₱340 to ₱525 per linear meter' },
+      { label: 'Thickness', value: '0.5 mm (Premium & Original) · 0.4 mm (Economy)' },
+      { label: 'Cutting', value: 'Custom length fabrication' },
+      { label: 'Colors available', value: 'Crimson Red, Forest Green, Terra Brown, Slate Gray, Royal Blue' },
+      { label: 'Price per meter', value: '₱525 (Premium) · ₱440 (Original) · ₱340 (Economy)' },
     ],
   },
 ];
@@ -96,9 +96,9 @@ export const ROOF_COLORS = [
   {
     id: 'red',
     name: 'Crimson Red',
-    hex: '#9E2227',
-    threeHex: 0x9e2227,
-    ringHex: '#7A161A',
+    hex: '#8E1B20',
+    threeHex: 0x8e1b20,
+    ringHex: '#630E13',
   },
   {
     id: 'green',
@@ -154,7 +154,7 @@ export function calculateDeliveryFee(mode, distanceKm) {
       fee: 0,
       billableKm: 0,
       isFreeRadius: true,
-      explanation: 'Plant pickup in Brgy Halang, Taal, Batangas (₱0)',
+      explanation: 'Warehouse pickup in Brgy Halang, Taal, Batangas (₱0)',
     };
   }
   const km = Math.max(0, Number(distanceKm) || 0);
